@@ -1,0 +1,187 @@
+Adding GET requests to flask:
+- Import the request context
+- Remove the dynamic URL variable
+- Check to see if the user entered a valid publication as a GET argument
+- Pass the user query and the publication to the template
+
+Request context:
+- code can access information about the latest request made to the application
+- GET arguments that users pass along as part of a request are automatically available in `request.args`
+- can access key-value pairs as in a dict
+
+Maintaining UI: 
+- can keep the URL user friendly by adding a <form> to the .html template 
+
+	<form>
+		<input type="text" name="publication" placeholder="search" />
+		<input type="submit" value="Submit"/>
+	</form>
+
+
+- Submit button grabs any text in the input and submits it to our Python backend.
+
+
+POST requests
+- larger and more sensitive content to the server
+- data transmitted is not visible in the URL
+- can obscure sensitive content; i.e. password fields (*****)
+
+Urllib vs urllib2
+- In Python 3, urllib2 was merged into urllib
+try: 
+	import urllib.request as urllib2
+except ImportError:
+	import urllib
+
+
+Weather API additions
+- would need to add some exception handling and retry logic since downloading data over the internet is always potentially untable
+- Adding another form to the tempalte for weather
+
+	<form>
+		<input type="text" name="city" placeholder="weather search" />
+		<input type="submit" value="Submit" />
+	</form> 
+
+HTML Entities
+- &#8451; is an example of an entity for Celsius. HTML character entities are characters that are not present on your keyboard. Added to HTML templates to add unique charcters.
+
+
+Refactoring - Chapter 4
+- get_news() function renamed to home() -- pulls news and weather data (and later currency data)
+- adding a DEFAULTS dictionary as a global. Whenever our code can't find information in GET arguments, it'll fall back to getting that it needs from there.
+
+
+Clearing ports:
+ps -fA | grep python
+kill 81364
+https://stackoverflow.com/questions/19071512/socket-error-errno-48-address-already-in-use
+
+
+
+Improving the UI -- Weather API
+- Adding a modification for displaying the country next to city
+- Displaying the country code in our template
+
+<p>City: <b>{{ weather.city }}, {{ weather.country }} </b></p>
+
+
+Currency API
+- Modifying the template to include currency data
+<h2>Currency</h2>
+	1 {{ currency_from }} = {{ currency_to }} {{ rate }}
+
+
+
+Improving the UI -- Adding inputs for currency values
+- HTML <select> option -- create a drop-down list with options
+- Attributes: name (for drop-down list); multiple (multiple options can be selected); required (user input is required); size (number of visible option in a drop down list)
+
+
+Improving the Template -- adding all currencies to the select input
+- pass the sorted list of all keys to our template, which can loop through them and use them to build the drop-down lists
+<form>
+	from: <select name="currency_from">
+			{% for currency in currencies %}
+				<option value="{{ currency }}">{{ currency }}</option>
+			{% endfor %}
+		   </select>
+	to:   <select name="currency_to">
+			{% for currency in currencies %}
+				<option value="{{ currency }}">{{ currency }}</option>
+		  </select>
+</form>
+
+
+
+Improving the UI -- displayed the selected currency 
+- Dropdown always displays the top item by default
+- Can update this by setting the `selected="selected"` attribute in the <select> tag
+- One-line Jinja logical statement will apply the change
+
+{% for currency in }
+
+
+
+---- CHAPTER 5: IMPROVING THE UX ----
+- Cookies: key/value pairs that are stored on the users' machine. We ask the browser to automatically send cookies back to us whenever they visit our site.
+
+Pros:
+- don't have to maintain a database; don't have to ask users to tell us who they are
+
+Cons:
+- don't have control over the information. If users change computers, web browsers, or delete cookies, we can't identify him/her
+
+
+Layout Improvement:
+- Using CSS to separate formatting (color, font, layout, etc) from the rest of our content, such as static text in files.
+
+
+Data Persistence -- Problems:
+- Not remembering users' choices even while they stay on the site
+- Not remember users' choices after they close the site and revisit at a later stage
+
+Solution -- cookies:
+- how to set cookies and have users' browser remember information
+- how to retrieve information that we used cookies to store
+
+New Imports:
+- datetime --> to set the lifespan of cookies
+- make_response --> to create a response_object that we can set cookies on
+
+(1) create a response object with make_response()
+(2) set cookies using this object
+(3) return the entire response, including template and cookies
+
+
+Retrieving cookies in Flask
+- Fallback logic needs to allow for explicit requests to take the highest priority. If there is no explicit request, we will look in the cookies to see if values can be pulled from them. If there are no cookies, use the default values.
+
+
+Refactoring -- Getting cookie values for forms
+- We could add the same `if` statement to each section of our code, but making the same change in many parts of our code is a strong sign that we need to do some refactoring
+- Creating a get_value_with_fallback() function that implements fallabck logic on a more abstract level.
+
+
+
+Adding CSS to the applicatio
+- best way to add CSS is to keep it separate from the HTML and save it in an external file, which is included in the HTML in a <link> element
+- known as external CSS
+
+- describe elements of our page by type, ID, class, etc., and define a number of properties for these, such as color, layout, padding, fonts, and so on.
+- if you don't specify a more specific element, it'll automatically inhereit properties defined for a more general element
+
+
+Adding CSS to the header
+- wrapping the header in a <div> tag to modify w/ CSS
+- <div> is a container for the styling
+- use to group logically related elements into the same element. We can then style all elements in a <div> tag at once.
+	<div id="header">
+		<h1>Headlines</h1>
+		<p>Headlines. Currency. Weather.</p>
+		<hr />
+	</div>
+
+
+- CSS should be added to the <head> section of our template in a <style> tag
+<style>
+html {
+	font-family: "Helvetica";
+	background: white;
+}
+body {
+	background: lightgrey;
+	max-width: 900px;
+	margin: 0 auto;
+}
+#header {
+	background: lightsteelblue;
+}
+</style>
+
+
+Clearing the Browser Cache -- Shortcut (Chrome)
+- Command + Shift + Delete
+- if your styles don't seem to be doing what you'd expect, clear your browser's cache
+
+
